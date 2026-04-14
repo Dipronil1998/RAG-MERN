@@ -1,0 +1,64 @@
+{
+  "info": {
+    "_postman_id": "3f0a2679-ba2e-482c-b8b1-acc38c142346",
+    "name": "RAG-MERN",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_exporter_id": "12457882"
+  },
+  "item": [
+    {
+      "name": "UPLOAD",
+      "request": {
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "formdata",
+          "formdata": [
+            {
+              "key": "file",
+              "type": "file",
+              "uuid": "ad263e58-efa7-4a67-8c8c-c4f5a9ae4836",
+              "src": "/Users/dipronildas/Desktop/Dipronil Das Resume.pdf"
+            }
+          ]
+        },
+        "url": {
+          "raw": "{{host}}/upload",
+          "host": [
+            "{{host}}"
+          ],
+          "path": [
+            "upload"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "CHAT",
+      "request": {
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n    \"question\": \"who is dipronil?\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{host}}/chat",
+          "host": [
+            "{{host}}"
+          ],
+          "path": [
+            "chat"
+          ]
+        }
+      },
+      "response": []
+    }
+  ]
+}
