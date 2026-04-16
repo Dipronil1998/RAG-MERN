@@ -3,7 +3,7 @@ import ChatBox from "../components/Chat/ChatBox";
 import InputBox from "../components/Chat/InputBox";
 
 export default function ChatPage() {
-  const { messages, sendMessage } = useChat();
+  const { messages, sendMessage, isLoading } = useChat();
 
   return (
     <div className="flex items-center justify-center min-h-screen bg-slate-100 p-4">
@@ -19,8 +19,8 @@ export default function ChatPage() {
           </div>
         </div>
 
-        <ChatBox messages={messages} />
-        <InputBox onSend={sendMessage} />
+        <ChatBox messages={messages} isLoading={isLoading} />
+        <InputBox onSend={sendMessage} isLoading={isLoading}/>
       </div>
     </div>
   );

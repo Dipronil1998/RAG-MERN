@@ -3,8 +3,6 @@ import cors from "cors";
 import uploadRoutes from "./routes/uploadRoutes.js";
 import chatRoutes from "./routes/chatRoutes.js";
 
-
-
 const app = express();
 
 app.use(cors());

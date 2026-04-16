@@ -5,6 +5,6 @@ export const getEmbedding = async (text) => {
     model: "text-embedding-3-small",
     input: text,
   });
-
+  
   return res.data[0].embedding;
 };
