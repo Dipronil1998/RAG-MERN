@@ -1,11 +1,18 @@
 import { getEmbedding } from "./embeddingService.js";
 import { vectorSearch } from "./vectorService.js";
 import { openai } from "../config/openai.js";
+import Document from "../models/Document.js";
 
 export const askQuestion = async (question) => {
   const queryEmbedding = await getEmbedding(question);
 
-  let docs = await vectorSearch(queryEmbedding);
+  const vectorDocs = await vectorSearch(queryEmbedding);
+
+  const textDocs = await Document.find({
+    text: { $regex: question, $options: "i" }
+  }).limit(5);
+
+  const docs = [...vectorDocs, ...textDocs];
 
   // ✅ safer filtering
   const THRESHOLD = 0.25;
