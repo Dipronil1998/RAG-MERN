@@ -4,9 +4,19 @@ import { openai } from "../config/openai.js";
 
 export const askQuestion = async (question) => {
   const queryEmbedding = await getEmbedding(question);
+
   let docs = await vectorSearch(queryEmbedding);
 
-  if (!docs.length) {
+  // ✅ safer filtering
+  const THRESHOLD = 0.25;
+
+  const filteredDocs = docs.filter(
+    (d) => d.score && d.score >= THRESHOLD
+  );
+
+  if (!filteredDocs.length) {
+    console.log("⚠️ Vector search weak, using text fallback...");
+
     const textDocs = await Document.find({
       text: { $regex: question, $options: "i" }
     }).limit(3);
@@ -14,21 +24,11 @@ export const askQuestion = async (question) => {
     if (textDocs.length) {
       return textDocs.map(d => d.text).join("\n");
     }
+
     return "❌ No data found in database.";
   }
 
-  // ✅ safer filtering
-  const THRESHOLD = 0.2;
-
-  const filteredDocs = docs.filter(
-    (d) => d.score && d.score >= THRESHOLD
-  );
-
-  // ✅ fallback if nothing passes threshold
-  const finalDocs =
-    filteredDocs.length > 0 ? filteredDocs : docs.slice(0, 3);
-
-  const context = finalDocs.map((d) => d.text).join("\n");
+  const context = filteredDocs.map((d) => d.text).join("\n");
 
   const response = await openai.chat.completions.create({
     model: "gpt-4o-mini",
@@ -37,7 +37,24 @@ export const askQuestion = async (question) => {
       {
         role: "system",
         content:
-          "Answer using ONLY the provided context. If answer is not clearly present, say 'Not found in document'.",
+          `
+Format the answer in proper Markdown.
+
+IMPORTANT:
+- Always use line breaks between headings
+- Add a blank line after each section
+- Do NOT write everything in one line
+- Use proper spacing
+
+Example format:
+
+## Heading
+
+### Subheading
+
+- Point 1
+- Point 2
+`,
       },
       {
         role: "user",
@@ -46,5 +63,5 @@ export const askQuestion = async (question) => {
     ],
   });
 
-  return response.choices[0].message.content;
+  return response.choices[0].message.content.trim();
 };

@@ -1,5 +1,6 @@
 import { useEffect, useRef } from "react";
 import { Bot, User, Loader2, Sparkles } from "lucide-react";
+import ReactMarkdown from "react-markdown";
 
 export default function ChatBox({ messages, isLoading }) {
   const scrollRef = useRef(null);
@@ -12,7 +13,7 @@ export default function ChatBox({ messages, isLoading }) {
   }, [messages, isLoading]);
 
   return (
-    <div 
+    <div
       ref={scrollRef}
       className="flex-1 overflow-y-auto p-6 space-y-6 bg-slate-50/50 scroll-smooth"
     >
@@ -26,11 +27,10 @@ export default function ChatBox({ messages, isLoading }) {
       ) : (
         <>
           {messages.map((msg, i) => (
-            <div 
-              key={i} 
-              className={`flex items-end gap-3 animate-in fade-in slide-in-from-bottom-2 duration-300 ${
-                msg.role === "user" ? "flex-row-reverse" : "flex-row"
-              }`}
+            <div
+              key={i}
+              className={`flex items-end gap-3 animate-in fade-in slide-in-from-bottom-2 duration-300 ${msg.role === "user" ? "flex-row-reverse" : "flex-row"
+                }`}
             >
               <div className={`w-8 h-8 rounded-lg flex items-center justify-center shrink-0 shadow-sm
                 ${msg.role === "user" ? "bg-indigo-600" : "bg-white border border-slate-200"}`}
@@ -43,12 +43,30 @@ export default function ChatBox({ messages, isLoading }) {
               </div>
 
               <div className={`max-w-[80%] px-4 py-3 rounded-2xl text-sm leading-relaxed shadow-sm
-                ${msg.role === "user" 
-                  ? "bg-indigo-600 text-white rounded-br-none" 
+                ${msg.role === "user"
+                  ? "bg-indigo-600 text-white rounded-br-none"
                   : "bg-white text-slate-700 border border-slate-100 rounded-tl-none"
                 }`}
               >
-                {msg.text}
+                <ReactMarkdown
+                  components={{
+                    p: ({ children }) => <p className="mb-2">{children}</p>,
+                    h2: ({ children }) => <h2 className="text-lg font-bold mb-2">{children}</h2>,
+                    h3: ({ children }) => <h3 className="text-md font-semibold mb-2">{children}</h3>,
+                    ul: ({ children }) => <ul className="list-disc ml-5 mb-2">{children}</ul>,
+                    li: ({ children }) => <li className="mb-1">{children}</li>,
+                    code: ({ inline, children }) =>
+                      inline ? (
+                        <code className="bg-slate-100 px-1 rounded text-xs">{children}</code>
+                      ) : (
+                        <pre className="bg-slate-900 text-white p-3 rounded-lg overflow-x-auto text-xs">
+                          <code>{children}</code>
+                        </pre>
+                      ),
+                  }}
+                >
+                  {msg.text}
+                </ReactMarkdown>
               </div>
             </div>
           ))}
