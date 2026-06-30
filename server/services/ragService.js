@@ -1,74 +1,47 @@
 import { getEmbedding } from "./embeddingService.js";
 import { vectorSearch } from "./vectorService.js";
 import { openai } from "../config/openai.js";
-import Document from "../models/Document.js";
 
 export const askQuestion = async (question) => {
-  const queryEmbedding = await getEmbedding(question);
+    // Generate embedding for the question
+    const queryEmbedding = await getEmbedding(question);
 
-  const vectorDocs = await vectorSearch(queryEmbedding);
+    // Search similar vectors in Qdrant
+    const results = await vectorSearch(queryEmbedding);
 
-  const textDocs = await Document.find({
-    text: { $regex: question, $options: "i" }
-  }).limit(5);
-
-  const docs = [...vectorDocs, ...textDocs];
-
-  // ✅ safer filtering
-  const THRESHOLD = 0.25;
-
-  const filteredDocs = docs.filter(
-    (d) => d.score && d.score >= THRESHOLD
-  );
-
-  if (!filteredDocs.length) {
-    console.log("⚠️ Vector search weak, using text fallback...");
-
-    const textDocs = await Document.find({
-      text: { $regex: question, $options: "i" }
-    }).limit(3);
-
-    if (textDocs.length) {
-      return textDocs.map(d => d.text).join("\n");
+    if (!results.length) {
+        return "❌ No relevant information found.";
     }
 
-    return "❌ No data found in database.";
-  }
+    // Extract chunk text from Qdrant payload
+    const context = results
+        .map((item) => item.payload.text)
+        .join("\n\n");
 
-  const context = filteredDocs.map((d) => d.text).join("\n");
+    const response = await openai.chat.completions.create({
+        model: "gpt-4o-mini",
+        temperature: 0,
+        messages: [
+            {
+                role: "system",
+                content: `
+You are a helpful AI assistant.
 
-  const response = await openai.chat.completions.create({
-    model: "gpt-4o-mini",
-    temperature: 0,
-    messages: [
-      {
-        role: "system",
-        content:
-          `
-Format the answer in proper Markdown.
+Answer ONLY using the provided context.
 
-IMPORTANT:
-- Always use line breaks between headings
-- Add a blank line after each section
-- Do NOT write everything in one line
-- Use proper spacing
+If the answer is not present in the context, reply:
 
-Example format:
+"I couldn't find that information in the uploaded documents."
 
-## Heading
-
-### Subheading
-
-- Point 1
-- Point 2
+Format the answer in Markdown.
 `,
-      },
-      {
-        role: "user",
-        content: `Context:\n${context}\n\nQuestion: ${question}`,
-      },
-    ],
-  });
+            },
+            {
+                role: "user",
+                content: `Context:\n${context}\n\nQuestion:\n${question}`,
+            },
+        ],
+    });
 
-  return response.choices[0].message.content.trim();
+    return response.choices[0].message.content.trim();
 };

@@ -1,9 +1,10 @@
 import File from "../models/File.js";
-import Document from "../models/Document.js";
 import { extractTextFromPDF } from "../services/pdfService.js";
 import { chunkText } from "../services/chunkService.js";
 import { getEmbedding } from "../services/embeddingService.js";
 import { generateFileHash } from "../utils/hash.js";
+import qdrant from "../config/qdrant.js";
+import { randomUUID } from "crypto";
 
 export const uploadPDF = async (req, res) => {
     try {
@@ -26,11 +27,22 @@ export const uploadPDF = async (req, res) => {
 
         for (const chunk of chunks) {
             const embedding = await getEmbedding(chunk);
+            console.log("Embedding length:", embedding.length);
+            
 
-            await Document.create({
-                text: chunk,
-                embedding,
-                fileId: fileDoc._id,
+           await qdrant.upsert("documents", {
+                wait: true,
+                points: [
+                    {
+                        id: randomUUID(),
+                        vector: embedding,
+                        payload: {
+                            text: chunk,
+                            fileId: fileDoc._id.toString(),
+                            fileName: fileDoc.fileName,
+                        },
+                    },
+                ],
             });
         }
 

@@ -1,21 +1,11 @@
-import Document from "../models/Document.js";
+import qdrant from "../config/qdrant.js";
 
-export const vectorSearch = async (queryEmbedding) => {
-  return await Document.aggregate([
-    {
-      $vectorSearch: {
-        index: "vector_index",
-        queryVector: queryEmbedding,
-        path: "embedding",
-        numCandidates: 200,
-        limit: 10,
-      },
-    },
-    {
-      $project: {
-        text: 1,
-        score: { $meta: "vectorSearchScore" }, // ✅ MUST
-      },
-    },
-  ]);
+export const vectorSearch = async (embedding) => {
+    const response = await qdrant.search("documents", {
+        vector: embedding,
+        limit: 5,
+        with_payload: true,
+    });
+
+    return response;
 };
