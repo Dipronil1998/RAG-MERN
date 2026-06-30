@@ -255,32 +255,56 @@ dipronil1998/ai-rag-app:frontend-v1
 ```
 
 ---
+নিচে short `.md` version 👇
 
-# ⭐ If you like this project
+---
 
-Give a ⭐ on GitHub and share it 🚀
+# 📥 Pull from Docker Hub (Short Guide)
 
+## 🔐 Login (optional)
+
+```bash
+docker login
 ```
 
 ---
 
-# 🔥 Bonus (Pro Tip)
+## 🐳 Pull Backend
 
-If you want next level README:
-
-👉 Add system diagram image  
-👉 Add API Swagger docs  
-👉 Add live demo link  
-👉 Add CI/CD badge (GitHub Actions)
+```bash
+docker pull dipronil1998/ai-rag-app:backend-latest
+```
 
 ---
 
-যদি চাও, আমি তোমার জন্য next level করে দিতে পারি:
+## 🎨 Pull Frontend
 
-🚀 GitHub Actions → auto Docker push  
-🚀 AWS EC2 deploy guide  
-🚀 Kubernetes RAG production setup  
-🚀 Architecture diagram PNG
-
-বললেই করে দেব 👍
+```bash
+docker pull dipronil1998/ai-rag-app:frontend-latest
 ```
+
+---
+
+## 🏃 Run Backend
+
+```bash
+docker run -p 9000:9000 dipronil1998/ai-rag-app:backend-latest
+```
+
+---
+
+## 🏃 Run Frontend
+
+```bash
+docker run -p 5173:5173 dipronil1998/ai-rag-app:frontend-latest
+```
+
+---
+
+## 🐳 Compose (Recommended)
+
+```bash
+docker compose up -d
+```
+
+---
