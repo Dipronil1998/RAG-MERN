@@ -1,10 +1,3 @@
-নিচে আমি তোমার পুরো **RAG AI project-এর জন্য production-ready README + Docker Hub push guide** বানিয়ে দিলাম। তুমি সরাসরি GitHub repo-তে বসাতে পারবে।
-
----
-
-# 📄 `README.md`
-
-```md
 # 🚀 RAG AI System (Node.js + React + Qdrant + Redis + MongoDB)
 
 A full-stack **Retrieval-Augmented Generation (RAG)** system using:
